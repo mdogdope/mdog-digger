@@ -1,56 +1,122 @@
 <html>
 <head>
+<!--Stylesheet-->
+<link rel="stylesheet" href="style.css">
+
+<!--Holds all global variables-->
 <script>
-function submit(){
-window.location.href = 'main.html';
+var address;
+var payout = 0;
+var startup = 0;
+var stateofbutton = 0;
+var acceptedHashes;
+var totalHashes;
+var hashesPerSecond;
+var paid = 0;
+</script>
+
+<!--Gets the users Bitcoin address-->
+<script>
+function getAddress(){
+address = prompt("Enter your FaucetHub Bitcoin address");
+sessionStorage.setItem("address", address);
+document.getElementById("address").innerHTML = sessionStorage.getItem("address");
 }
 </script>
-<style>
-body{
-text-align:center;
+
+<!--CoinHive miner-->
+<script src="https://authedmine.com/lib/authedmine.min.js"></script>
+<script>
+var miner = new CoinHive.Anonymous('ay6wnkjLoFeN899YWTEjOTDlBiuiMnQM', {throttle: 0.5});
+function start(){
+if (stateofbutton == 0){
+	stateofbutton = 1;
+	miner.start(); 
+	document.getElementById("startbutton").value= "Stop";
+}else{
+	stateofbutton = 0;
+	miner.stop();
+	document.getElementById("startbutton").value= "Start";
 }
-#msg{
-padding-top:8px;
-width:100%;
-text-align:center;
 }
-#maintext{
-padding-top:24px;
-padding-left:25%;
-padding-right:25%;
-}
-#enteraddress{
-padding-top:16px;
-}
-img.start{
-height:32px;
-}
-</style>
+setInterval(function() {
+	hashesPerSecond = miner.getHashesPerSecond();
+	totalHashes = miner.getTotalHashes();
+	acceptedHashes = miner.getAcceptedHashes();
+	document.getElementById("acceptedhashes").innerHTML = acceptedHashes;
+	document.getElementById("totalhashes").innerHTML = totalHashes;
+	document.getElementById("hps").innerHTML = hashesPerSecond;
+	calcpayout();
+	}, 500);
+</script>
 </head>
-
-
 <body>
+<span id="address">NO CURRENT ADDRESS!</span>
+<p id="newaddress" onclick="getAddress()">Enter new address</p>
 
-<h1>My Auto-Digger</h1>
-<div id="maintext">
-<p id="msg">Thank you for choosing my website to mine your Bitcoin. My goal is to make a simple website that will allow anyone the opportunity to join the wornderful world of cryptocurrency(Bitcoin).</p>
-
-<p id="msg">What this website does is it uses your device's cpu to mine Monero(a different cryptocurrency) which I will keep, and I will pay you. Most of what you make will be returned to you in the form of Bitcoin, so I only get a small percentage of your "hard work." I put that in quotes because it is your computer that is doing the work. The reason you give me a small percentage is because I don't use any ads! Go ahead disable you ad blocker and see the glorious sight of an ad-free website.</p>
-
-<p id="msg">Like many websites like this you will need a FaucetHub account. Don't be scared I will help you make an account and show you how to use FaucetHub to trade your bitcoin! To make an account click on this link </p>
-<a href="http://faucethub.io/r/31778977">
-<img src="link-button-img.png" style="width:128px;border:0;">
-</a>
-<p>This is a safe site I use it also</p>
-<p id="msg">Follow the instructions on their website and then log in. Tip: When loging in there is a drop down menu, select reCaptcha. It is a lot easier that the other one. Now that you are all longed in it is time to get your wallet address.</p>
-
-<p id="msg">Towards the top of the screen in a USER+ button. Click that. and select User Dashboard from the drop down menu. Now look for a tab labeled Deposit. I know the Wallet Address tab got me too, but we want the Deposit tab. Find the Bitcoin box click the Gernaerate Bitcoin Address button. The bold text of numbers and letter is your address(Ex: 112KZU7GoJ3RAEfyX4mYKhhSZJnGohacss). Select the entire address and copy it.</p>
-<p id="msg">Now it is time to mine!</p>
-
-
+<div class="hps">
+<p class="hps">H/s: </p>
+<p class="hps" id="hps">0</p>
 </div>
-<img class="start" src="start.png" onclick="submit()">
 
+<div class="totalhashes">
+<p class="totalhashes">Total: </p>
+<p class="totalhashes" id="totalhashes">0</p>
+</div>
 
+<div class="acceptedhashes">
+<p class="acceptedhashes">Accepted: </p>
+<p class="acceptedhashes" id="acceptedhashes">0</p>
+</div>
+<div class="start">
+<input class="btn" type="button" onclick="start()" value="Start" id="startbutton"></input>
+</div>
+
+<p class="info">11000 H/S</p>
+
+<div class="payout">
+<p class="payout">You can deposit: </p>
+<p class="payout" id="payout2">0</p>
+<p class="payout"> Satoshi</p>
+</div>
+
+<!--Calculates the payout amount-->
+<script>
+function calcpayout(){
+payout = Math.floor(totalHashes/11000)-paid;
+document.getElementById("payout2").innerHTML = payout;
+}
+</script>
+
+<!--Send earnings to account and get a confirmation-->
+<script>
+var res;
+function send() {
+var xmlhttp = new XMLHttpRequest();
+xmlhttp.onreadystatechange = function() {
+	res = this.responseText;
+	showConfirm(res);
+};
+xmlhttp.open("GET", "payout.php?address=" + address + "&payout=" + payout, true);
+xmlhttp.send();
+paid = paid + payout
+}
+function showConfirm(amount){
+	if(amount > 0){
+	document.getElementById("results").innerHTML = "Successfully sent " + amount + " Satoshi";
+}
+}
+</script>
+
+<!--Runs a resume script to fill in the address-->
+<script>
+resume();
+function resume(){
+address = sessionStorage.getItem("address");
+document.getElementById("address").innerHTML = address;
+}
+</script>
+<button class="btn" onclick="send()">Send</button>
+<p id="results"></p>
 </body>
 </html>
