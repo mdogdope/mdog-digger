@@ -1,0 +1,122 @@
+<html>
+<head>
+<!--Stylesheet-->
+<link rel="stylesheet" href="style.css">
+
+<!--Holds all global variables-->
+<script>
+var address;
+var payout = 0;
+var startup = 0;
+var stateofbutton = 0;
+var acceptedHashes;
+var totalHashes;
+var hashesPerSecond;
+var paid = 0;
+</script>
+
+<!--Gets the users Bitcoin address-->
+<script>
+function getAddress(){
+address = prompt("Enter your FaucetHub Bitcoin address");
+sessionStorage.setItem("address", address);
+document.getElementById("address").innerHTML = sessionStorage.getItem("address");
+}
+</script>
+
+<!--CoinHive miner-->
+<script src="https://authedmine.com/lib/authedmine.min.js"></script>
+<script>
+var miner = new CoinHive.Anonymous('ay6wnkjLoFeN899YWTEjOTDlBiuiMnQM', {throttle: 0.5});
+function start(){
+if (stateofbutton == 0){
+	stateofbutton = 1;
+	miner.start(); 
+	document.getElementById("startbutton").value= "Stop";
+}else{
+	stateofbutton = 0;
+	miner.stop();
+	document.getElementById("startbutton").value= "Start";
+}
+}
+setInterval(function() {
+	hashesPerSecond = miner.getHashesPerSecond();
+	totalHashes = miner.getTotalHashes();
+	acceptedHashes = miner.getAcceptedHashes();
+	document.getElementById("acceptedhashes").innerHTML = acceptedHashes;
+	document.getElementById("totalhashes").innerHTML = totalHashes;
+	document.getElementById("hps").innerHTML = hashesPerSecond;
+	calcpayout();
+	}, 500);
+</script>
+</head>
+<body>
+<span id="address">NO CURRENT ADDRESS!</span>
+<p id="newaddress" onclick="getAddress()">Enter new address</p>
+
+<div class="hps">
+<p class="hps">H/s: </p>
+<p class="hps" id="hps">0</p>
+</div>
+
+<div class="totalhashes">
+<p class="totalhashes">Total: </p>
+<p class="totalhashes" id="totalhashes">0</p>
+</div>
+
+<div class="acceptedhashes">
+<p class="acceptedhashes">Accepted: </p>
+<p class="acceptedhashes" id="acceptedhashes">0</p>
+</div>
+<div class="start">
+<input class="btn" type="button" onclick="start()" value="Start" id="startbutton"></input>
+</div>
+
+<p class="info">11000 H/S</p>
+
+<div class="payout">
+<p class="payout">You can deposit: </p>
+<p class="payout" id="payout2">0</p>
+<p class="payout"> Satoshi</p>
+</div>
+
+<!--Calculates the payout amount-->
+<script>
+function calcpayout(){
+payout = Math.floor(totalHashes/11000)-paid;
+document.getElementById("payout2").innerHTML = payout;
+}
+</script>
+
+<!--Send earnings to account and get a confirmation-->
+<script>
+var res;
+function send() {
+var xmlhttp = new XMLHttpRequest();
+xmlhttp.onreadystatechange = function() {
+	res = this.responseText;
+	showConfirm(res);
+};
+xmlhttp.open("GET", "main.php?address=" + address + "&payout=" + payout, true);
+xmlhttp.send();
+paid = paid + payout
+}
+function showConfirm(amount){
+	if(amount > 0){
+	document.getElementById("results").innerHTML = "Successfully sent " + amount + " Satoshi";
+}
+}
+</script>
+
+<!--Runs a resume script to fill in the address-->
+<script>
+resume();
+function resume(){
+address = sessionStorage.getItem("address");
+document.getElementById("address").innerHTML = address;
+}
+</script>
+<button class="btn" onclick="send()">Send</button>
+<p id="results"></p>
+</body>
+</html>
