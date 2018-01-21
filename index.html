@@ -13,7 +13,7 @@
 
 <!--Holds all global variables-->
 <script>
-var address = "";
+var address = "NO";
 var payout = 0;
 var startup = 0;
 var stateofbutton = 0;
@@ -60,7 +60,7 @@ setInterval(function() {
 </head>
 
 <body>
-<p class="address" id="address">NO CURRENT ADDRESS!</p>
+<p class="address" id="address"></p>
 <p class="newaddress" id="newaddress" onclick="getAddress()">Enter new address</p>
 
 <div class="hps">
@@ -127,9 +127,7 @@ document.getElementById("address").innerHTML = address;
 
 <!--Checks if there is a stored address and loads if there is-->
 <script>
-if(sessionStorage.length != "0"){
 resume();
-}
 </script>
 
 <button class="btn" onclick="send()">Send</button>
