@@ -1,11 +1,19 @@
 <html>
 <head>
 <!--Stylesheet-->
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="index.css">
+
+<!--Title bar-->
+<link rel="stylesheet" href="titlebar.css">
+<ul>
+<li><a href="index.html">Miner</a></li>
+<li><a href="info.html">Info</a></li>
+<li><a href="">About</a></li>
+</ul>
 
 <!--Holds all global variables-->
 <script>
-var address;
+var address = "";
 var payout = 0;
 var startup = 0;
 var stateofbutton = 0;
@@ -50,9 +58,10 @@ setInterval(function() {
 	}, 500);
 </script>
 </head>
+
 <body>
-<span id="address">NO CURRENT ADDRESS!</span>
-<p id="newaddress" onclick="getAddress()">Enter new address</p>
+<p class="address" id="address">NO CURRENT ADDRESS!</p>
+<p class="newaddress" id="newaddress" onclick="getAddress()">Enter new address</p>
 
 <div class="hps">
 <p class="hps">H/s: </p>
@@ -110,13 +119,21 @@ function showConfirm(amount){
 
 <!--Runs a resume script to fill in the address-->
 <script>
-resume();
 function resume(){
 address = sessionStorage.getItem("address");
 document.getElementById("address").innerHTML = address;
 }
 </script>
+
+<!--Checks if there is a stored address and loads if there is-->
+<script>
+if(sessionStorage.length != "0"){
+resume();
+}
+</script>
+
 <button class="btn" onclick="send()">Send</button>
 <p id="results"></p>
 </body>
+<div class="art">Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
 </html>
