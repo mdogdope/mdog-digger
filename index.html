@@ -15,6 +15,7 @@
 <script>
 var address = "NO";
 var payout = 0;
+var hashreq;
 var startup = 0;
 var stateofbutton = 0;
 var acceptedHashes;
@@ -29,6 +30,25 @@ function getAddress(){
 address = prompt("Enter your FaucetHub Bitcoin address");
 sessionStorage.setItem("address", address);
 document.getElementById("address").innerHTML = sessionStorage.getItem("address");
+}
+</script>
+
+<!--This gets the required hashes per Satoshi-->
+<script>
+var res;
+function getrate() {
+var xmlhttp = new XMLHttpRequest();
+xmlhttp.onreadystatechange = function() {
+	res = this.responseText;
+	var res2 = Math.round(res);
+	showRate(res2);
+};
+xmlhttp.open("GET", "getprice.php", false);
+xmlhttp.send();
+}
+function showRate(rate){
+	hashreq = rate;
+	document.getElementById("rate").innerHTML = hashreq + " Hashes Per Satoshi";
 }
 </script>
 
@@ -81,19 +101,19 @@ setInterval(function() {
 <input class="btn" type="button" onclick="start()" value="Start" id="startbutton"></input>
 </div>
 
-<p class="info">11000 H/S</p>
+<p class="info" id="rate"></p>
 
 <div class="payout">
 <p class="payout">You can deposit: </p>
-<p class="payout" id="payout2">0</p>
+<p class="payout" id="payout">0</p>
 <p class="payout"> Satoshi</p>
 </div>
 
 <!--Calculates the payout amount-->
 <script>
 function calcpayout(){
-payout = Math.floor(totalHashes/11000)-paid;
-document.getElementById("payout2").innerHTML = payout;
+payout = Math.floor(totalHashes/hashreq)-paid;
+document.getElementById("payout").innerHTML = payout;
 }
 </script>
 
@@ -128,6 +148,11 @@ document.getElementById("address").innerHTML = address;
 <!--Checks if there is a stored address and loads if there is-->
 <script>
 resume();
+</script>
+
+
+<script>
+getrate();
 </script>
 
 <button class="btn" onclick="send()">Send</button>

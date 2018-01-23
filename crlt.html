@@ -1,39 +1,24 @@
-
-<p id="results" onclick="post()">hi</p>
+<html>
 <script>
-function getJSON(url) {
-	var resp ;
-	var xmlHttp ;
-
-	resp  = '' ;
-	xmlHttp = new XMLHttpRequest();
-
-	if(xmlHttp != null)
-	{
-	    xmlHttp.open( "GET", url, false);
-	    xmlHttp.send( null );
-	    resp = xmlHttp.responseText;
-	}
-
-	return resp;
+var res;
+function getrate() {
+var xmlhttp = new XMLHttpRequest();
+xmlhttp.onreadystatechange = function() {
+	res = this.responseText;
+	var res2 = Math.round(res);
+	showRate(res2);
+};
+xmlhttp.open("GET", "getprice.php", false);
+xmlhttp.send();
+}
+function showRate(rate){
+	document.getElementById("rate").innerHTML = rate + " Hashes Per Satoshi";
 }
 </script>
+<p id="rate" onclick="getrate()">Click</p>
 <script>
-function getPrice(){
-	var json = getJSON('https://api.cryptonator.com/api/ticker/btc-xmr');
-	var res = json.split(',');
-
-	var pricea = res[2].split(':');
-
-	var priceb = pricea[1];
-
-	var pricec = priceb.substring(1,priceb.length-1);
-	
-	var priced = (pricec*0.00000001);
-	
-	var price = priced.toFixed(10);
-	
-	return price;
-}
+setInterval(function() {
+getrate();
+}, 500);
 </script>
-
+</html>
